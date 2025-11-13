@@ -75,9 +75,95 @@ class HamiltonCycleColoring(HamiltonCycleAbstractClass):
 
     def hamilton_backtracking(
         self, vertices: set, edges: List[Tuple[int]]
-    ) -> Tuple[bool, List[int], bool, List[int], int]:        
+    ) -> Tuple[bool, List[int], bool, List[int], int]:
         # return (path_exists, path, cycle_exists, cycle, largest)
-        pass
+        n = len(vertices)
+        if n == 0:
+            return False, [], False, [], 0
+
+        adjacency ={}
+        for v in vertices:
+            adjacency[v] = []
+
+        for u, v in edges:
+            if v not in adjacency[u]:
+                adjacency[u].append(v)
+            if u not in adjacency[v]:
+                adjacency[v].append(u)
+
+        for v in adjacency:
+            adjacency[v].sort()
+
+        start_vertices = sorted(list(vertices))
+
+        path_exists = False
+        found_path: List[int] = []
+
+        cycle_exists = False
+        found_cycle: List[int] = []
+        largest_cycle_size = 0
+
+        for start in start_vertices:
+            if cycle_exists:
+                break
+
+            path: List[int] = [start]
+            visited =set([start])
+
+            stack: List[Tuple[int, int]] = [(start, 0)]
+
+            while stack:
+                current_vertex, next_index = stack[-1]
+
+                if len(path) == n:
+                    if not path_exists:
+                        path_exists = True
+                        found_path = list(path)
+
+                    first_vertex = path[0]
+                    last_vertex = path[-1]
+                    if first_vertex in adjacency[last_vertex]:
+                        cycle_exists = True
+                        found_cycle = list(path)
+                        found_cycle.append(first_vertex)
+                        largest_cycle_size = n
+
+                        return (path_exists, found_path, cycle_exists, found_cycle, largest_cycle_size)
+
+                    visited.remove(path[-1])
+                    path.pop()
+                    stack.pop()
+                    continue
+
+                neighbors = adjacency[current_vertex]
+                found_extension = False
+
+                while next_index < len(neighbors):
+                    neighbor = neighbors[next_index]
+                    next_index += 1
+
+                    stack[-1] = (current_vertex, next_index)
+
+                    if neighbor not in visited:
+                        visited.add(neighbor)
+                        path.append(neighbor)
+
+                        stack.append((neighbor,0))
+
+                        found_extension = True
+                        break
+                if not found_extension:
+                    visited.remove(current_vertex)
+                    path.pop()
+                    stack.pop()
+
+        if cycle_exists:
+            largest_cycle_size = n
+        else:
+            largest_cycle_size = 0
+
+        return (path_exists, found_path, cycle_exists, found_cycle, largest_cycle_size)
+
 
     def hamilton_bruteforce(
         self, vertices: set, edges: List[Tuple[int]]
