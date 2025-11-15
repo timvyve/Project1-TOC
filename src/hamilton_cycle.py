@@ -65,8 +65,8 @@ from src.helpers.hamilton_cycle_helper import HamiltonCycleAbstractClass
 
 class HamiltonCycleColoring(HamiltonCycleAbstractClass):
     """
-    NOTE: The output of the CSV file should be same as EXAMPLE OUTPUT above otherwise you will loose marks
-    For this you dont need to save anything just make sure to return exact related output.
+    NOTE: The output of the CSV file should be same as EXAMPLE OUTPUT above otherwise you will lose marks
+    For this you don't need to save anything just make sure to return exact related output.
 
     For ease look at the Abstract Solver class and basically we are having the run method which does the saving
     of the CSV file just focus on the logic
@@ -81,11 +81,12 @@ class HamiltonCycleColoring(HamiltonCycleAbstractClass):
         if n == 0:
             return False, [], False, [], 0
 
-        adjacency ={}
+        adjacency = {}
         for v in vertices:
             adjacency[v] = []
 
         for u, v in edges:
+            # undirected so we add both ways
             if v not in adjacency[u]:
                 adjacency[u].append(v)
             if u not in adjacency[v]:
@@ -94,6 +95,7 @@ class HamiltonCycleColoring(HamiltonCycleAbstractClass):
         for v in adjacency:
             adjacency[v].sort()
 
+        # try to start from every vertex
         start_vertices = sorted(list(vertices))
 
         path_exists = False
@@ -101,6 +103,7 @@ class HamiltonCycleColoring(HamiltonCycleAbstractClass):
 
         cycle_exists = False
         found_cycle: List[int] = []
+
         largest_cycle_size = 0
 
         for start in start_vertices:
@@ -108,9 +111,9 @@ class HamiltonCycleColoring(HamiltonCycleAbstractClass):
                 break
 
             path: List[int] = [start]
-            visited =set([start])
+            visited = set([start])
 
-            stack: List[Tuple[int, int]] = [(start, 0)]
+            stack = [(start, 0)]
 
             while stack:
                 current_vertex, next_index = stack[-1]
@@ -122,12 +125,14 @@ class HamiltonCycleColoring(HamiltonCycleAbstractClass):
 
                     first_vertex = path[0]
                     last_vertex = path[-1]
+                    #checking if our path is a cycle
                     if first_vertex in adjacency[last_vertex]:
                         cycle_exists = True
                         found_cycle = list(path)
-                        found_cycle.append(first_vertex)
+                        found_cycle.append(first_vertex) # make sure we end on start vertex
                         largest_cycle_size = n
 
+                        #once we have a cycle we can break and return
                         return (path_exists, found_path, cycle_exists, found_cycle, largest_cycle_size)
 
                     visited.remove(path[-1])
